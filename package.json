@@ -5,5 +5,8 @@
     "elm-land": "^0.20.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.13"
+  },
+  "scripts": {
+    "build": "elm-land build"
   }
 }
