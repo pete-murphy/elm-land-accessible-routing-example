@@ -1,40 +1,7 @@
 import "./styles.css";
 
-// This returns the flags passed into your Elm application
-export const flags = async ({ env }: ElmLand.FlagsArgs) => {
-  return {};
-};
-
-// This function is called after your Elm app starts
-export const onReady = ({ app, env }: ElmLand.OnReadyArgs) => {
-  console.log("Elm is ready", app);
-  app.ports.outgoing.subscribe((data) => {
-    switch (data.tag) {
-      case "FOCUS_HTML_ID":
-        document.getElementById(data.data as string)?.focus();
-        break;
-    }
-  });
-};
-
-// Type definitions for Elm Land
-namespace ElmLand {
-  export type FlagsArgs = {
-    env: Record<string, string>;
-  };
-  export type OnReadyArgs = {
-    env: Record<string, string>;
-    app: {
-      ports: {
-        outgoing: {
-          subscribe: (
-            callback: (data: { tag: string; data: unknown }) => void
-          ) => void;
-        };
-      };
-    };
-  };
-}
+export const flags = async () => ({});
+export const onReady = () => {};
 
 customElements.define(
   "route-announcer",

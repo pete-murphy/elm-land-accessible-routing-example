@@ -1,6 +1,7 @@
 module Layouts.Sidebar exposing (Model, Msg, Props, layout)
 
 import Accessibility.Aria as Aria
+import Browser.Dom
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -8,6 +9,7 @@ import Layout exposing (Layout)
 import Route exposing (Route)
 import Route.Path
 import Shared
+import Task
 import View exposing (View)
 
 
@@ -47,6 +49,7 @@ init _ =
 
 type Msg
     = UrlChanged { from : Route (), to : Route () }
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -55,13 +58,22 @@ update msg model =
         UrlChanged { from, to } ->
             if from.path /= to.path then
                 ( model
-                , Effect.focusHtmlId "skip-link"
+                , Effect.sendCmd
+                    (Task.attempt
+                        (\_ -> NoOp)
+                        (Browser.Dom.focus "skip-link")
+                    )
                 )
 
             else
                 ( model
                 , Effect.none
                 )
+
+        NoOp ->
+            ( model
+            , Effect.none
+            )
 
 
 subscriptions : Model -> Sub Msg
