@@ -1,16 +1,10 @@
-# temp
-> Built with [Elm Land](https://elm.land) 🌈
+# `elm-land` accessible navigation example
 
-## Local development
+Implementing the advice from this article https://www.gatsbyjs.com/blog/2019-07-11-user-testing-accessible-client-routing/
 
-```bash
-# Requires Node.js v18+ (https://nodejs.org)
-npx elm-land server
-```
+Namely:
 
-## Deploying to production
+> - Provide a skip link that takes focus on a route change within the site, with a label that indicates what the link will do when activated: e.g. "skip to main navigation".
+> - Include an ARIA Live Region on page load. On a route change, append text to it indicating the current page, e.g. "Portfolio page".
 
-Elm Land projects are most commonly deployed as static websites. 
-
-Please visit [the "Deployment" guide](https://elm.land/guide/deploying) to learn more
-about deploying your app for free using Netlify or Vercel.
+The skip link and live region are in `Layouts.Sidebar`.
