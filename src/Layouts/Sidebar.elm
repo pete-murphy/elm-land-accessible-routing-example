@@ -23,6 +23,7 @@ layout _ _ route =
         , view = view route
         , subscriptions = subscriptions
         }
+        |> Layout.withOnUrlChanged UrlChanged
 
 
 
@@ -45,16 +46,22 @@ init _ =
 
 
 type Msg
-    = ReplaceMe
+    = UrlChanged { from : Route (), to : Route () }
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        ReplaceMe ->
-            ( model
-            , Effect.none
-            )
+        UrlChanged { from, to } ->
+            if from.path /= to.path then
+                ( model
+                , Effect.focusHtmlId "skip-link"
+                )
+
+            else
+                ( model
+                , Effect.none
+                )
 
 
 subscriptions : Model -> Sub Msg
@@ -85,7 +92,18 @@ view route { toContentMsg, model, content } =
     in
     { title = content.title
     , body =
-        [ Html.div [ Attributes.class "grid grid-cols-[20ch_1fr] relative" ]
+        [ Html.node "route-announcer"
+            [ Attributes.attribute "message" ("Navigated to " ++ content.title)
+            ]
+            []
+        , Html.a
+            [ Attributes.class "absolute -top-full left-0 z-10 bg-white focus-visible:top-4 focus-visible:left-4 focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-[outline-offset] focus-visible:outline-blue-600"
+            , Attributes.id "skip-link"
+            , Attributes.href "#content"
+            , Attributes.target "_self"
+            ]
+            [ Html.text "Skip to content" ]
+        , Html.div [ Attributes.class "grid grid-cols-[20ch_1fr] relative" ]
             [ Html.aside [ Attributes.class "bg-gray-100 p-4 sticky top-0 h-dvh" ]
                 [ Html.nav []
                     [ Html.ul []
@@ -104,7 +122,11 @@ view route { toContentMsg, model, content } =
 
 mainContent : View msg -> Html msg
 mainContent content =
-    Html.main_ [ Attributes.class "p-4 prose" ]
+    Html.main_
+        [ Attributes.class "p-4 prose focus-visible:outline-none"
+        , Attributes.id "content"
+        , Attributes.tabindex -1
+        ]
         [ Html.header []
             [ Html.h1 []
                 [ Html.text content.title ]
