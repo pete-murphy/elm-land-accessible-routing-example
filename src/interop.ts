@@ -27,7 +27,7 @@ customElements.define(
       if (this.timeout) {
         clearTimeout(this.timeout);
       }
-      setTimeout(() => {
+      this.timeout = setTimeout(() => {
         this.textContent = this.getAttribute("message");
       }, 200);
     }
