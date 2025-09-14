@@ -91,7 +91,7 @@ view route { toContentMsg, model, content } =
         navItem path name =
             Html.li []
                 [ Html.a
-                    [ Attributes.class "underline aria-[current=page]:font-bold"
+                    [ Attributes.class "inline-block p-4 font-semibold aria-[current=page]:bg-black aria-[current=page]:text-white"
                     , if route.path == path then
                         Aria.currentPage
 
@@ -109,16 +109,16 @@ view route { toContentMsg, model, content } =
             ]
             []
         , Html.a
-            [ Attributes.class "absolute -top-full left-0 z-10 bg-white focus-visible:top-4 focus-visible:left-4 focus-visible:outline-2 focus-visible:outline-offset-2 motion-safe:transition-[outline-offset] focus-visible:outline-blue-600"
+            [ Attributes.class "absolute -top-20 left-1/2 z-10 p-4 font-semibold bg-white -translate-x-1/2 focus-visible:top-0 motion-safe:transition-[outline-offset] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             , Attributes.id "skip-link"
             , Attributes.href "#content"
             , Attributes.target "_self"
             ]
             [ Html.text "Skip to content" ]
-        , Html.div [ Attributes.class "grid grid-cols-[20ch_1fr] relative" ]
-            [ Html.aside [ Attributes.class "bg-gray-100 p-4 sticky top-0 h-dvh" ]
+        , Html.div [ Attributes.class "grid" ]
+            [ Html.header [ Attributes.class "border-b" ]
                 [ Html.nav []
-                    [ Html.ul []
+                    [ Html.ul [ Attributes.class "flex" ]
                         [ navItem Route.Path.Home_ "Home"
                         , navItem Route.Path.Zombies "Zombies"
                         , navItem Route.Path.Hipsters "Hipsters"
@@ -135,14 +135,12 @@ view route { toContentMsg, model, content } =
 mainContent : View msg -> Html msg
 mainContent content =
     Html.main_
-        [ Attributes.class "p-4 prose focus-visible:outline-none"
+        [ Attributes.class "p-4 focus-visible:outline-none prose"
         , Attributes.id "content"
         , Attributes.tabindex -1
         ]
-        [ Html.header []
-            [ Html.h1 []
-                [ Html.text content.title ]
-            ]
+        [ Html.h1 []
+            [ Html.text content.title ]
         , Html.div []
             content.body
         ]
