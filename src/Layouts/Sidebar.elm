@@ -49,7 +49,7 @@ init _ =
 
 type Msg
     = UrlChanged { from : Route (), to : Route () }
-    | NoOp
+    | ElmAttemptedFocus (Result Browser.Dom.Error ())
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -60,7 +60,7 @@ update msg model =
                 ( model
                 , Effect.sendCmd
                     (Task.attempt
-                        (\_ -> NoOp)
+                        ElmAttemptedFocus
                         (Browser.Dom.focus "skip-link")
                     )
                 )
@@ -70,7 +70,7 @@ update msg model =
                 , Effect.none
                 )
 
-        NoOp ->
+        ElmAttemptedFocus _ ->
             ( model
             , Effect.none
             )
