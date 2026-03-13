@@ -61,7 +61,7 @@ update msg model =
                 , Effect.sendCmd
                     (Task.attempt
                         ElmAttemptedFocus
-                        (Browser.Dom.focus "skip-link")
+                        (Browser.Dom.focus "skip-to-main-nav-link")
                     )
                 )
 
@@ -91,7 +91,7 @@ view route { toContentMsg, model, content } =
         navItem path name =
             Html.li []
                 [ Html.a
-                    [ Attributes.class "inline-block p-4 font-semibold aria-[current=page]:bg-black aria-[current=page]:text-white"
+                    [ Attributes.class "inline-block px-5 py-3 font-semibold aria-[current=page]:bg-blue-800 aria-[current=page]:text-white"
                     , if route.path == path then
                         Aria.currentPage
 
@@ -109,15 +109,15 @@ view route { toContentMsg, model, content } =
             ]
             []
         , Html.a
-            [ Attributes.class "absolute -top-20 left-1/2 z-10 p-4 font-semibold bg-white -translate-x-1/2 focus-visible:top-0 motion-safe:transition-[outline-offset] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+            [ Attributes.class "absolute -top-20 z-10 p-4 font-semibold bg-white focus-visible:top-0 motion-safe:transition-[outline-offset] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             , Attributes.id "skip-link"
             , Attributes.href "#content"
             , Attributes.target "_self"
             ]
             [ Html.text "Skip to content" ]
         , Html.div [ Attributes.class "grid" ]
-            [ Html.header [ Attributes.class "border-b" ]
-                [ Html.nav []
+            [ Html.header [ Attributes.class "p-2" ]
+                [ Html.nav [ Attributes.id "main-nav" ]
                     [ Html.ul [ Attributes.class "flex" ]
                         [ navItem Route.Path.Home_ "Home"
                         , navItem Route.Path.Zombies "Zombies"
@@ -135,12 +135,21 @@ view route { toContentMsg, model, content } =
 mainContent : View msg -> Html msg
 mainContent content =
     Html.main_
-        [ Attributes.class "p-4 focus-visible:outline-none prose"
+        [ Attributes.class "p-4 pt-16 focus-visible:outline-none prose"
         , Attributes.id "content"
         , Attributes.tabindex -1
         ]
-        [ Html.h1 []
-            [ Html.text content.title ]
+        [ Html.header []
+            [ Html.a
+                [ Attributes.id "skip-to-main-nav-link"
+                , Attributes.href "#main-nav"
+                , Attributes.target "_self"
+                , Attributes.class "text-nowrap focus-outline"
+                ]
+                [ Html.text "Skip to main navigation" ]
+            , Html.h1 []
+                [ Html.text content.title ]
+            ]
         , Html.div []
             content.body
         ]

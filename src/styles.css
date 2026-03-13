@@ -1,2 +1,20 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+
+:root {
+  scroll-padding: 1rem;
+}
+
+a,
+button {
+  outline-offset: 0px;
+  &:focus-visible {
+    outline-width: 3px;
+    outline-color: var(--color-blue-800);
+    outline-style: solid;
+    outline-offset: 1px;
+    @media (prefers-reduced-motion: no-preference) {
+      transition: outline-offset 0.2s ease-in-out;
+    }
+  }
+}
