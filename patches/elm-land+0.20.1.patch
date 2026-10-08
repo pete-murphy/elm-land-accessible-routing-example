@@ -1,34 +1,52 @@
 diff --git a/node_modules/elm-land/src/effects.js b/node_modules/elm-land/src/effects.js
-index 5c6110f..a5e2c21 100644
+index 5c6110f..ec25f2d 100644
 --- a/node_modules/elm-land/src/effects.js
 +++ b/node_modules/elm-land/src/effects.js
-@@ -1,3 +1,4 @@
-+import fs from 'fs'
- import { watch } from 'chokidar'
- import { join } from 'path'
- import { createServer, loadEnv, build as _build } from 'vite'
-@@ -231,9 +232,23 @@ let runServer = async (options) => {
-         host: options.host,
-         port: options.port,
-         fs: { allow: ['../..'] },
--        proxy
-+        proxy,
-+        watch: {
-+          ignored: ['**/.elm-land/**']
-+        }
-       },
-       plugins: [
+@@ -238,6 +238,24 @@ let runServer = async (options) => {
+           mode: debug ? 'debug' : 'standard',
+           isBodyPatchEnabled: false
+         }),
 +        {
-+          name: 'elm-tailwind-hmr',
++          // Tailwind registers every scanned .elm file as a dependency of
++          // styles.css, but vite-plugin-elm-watch replaces ctx.modules with
++          // only the Elm entrypoints, so CSS never gets an HMR update.
++          // Add the CSS files that depend on the changed .elm file. (Adding
++          // the .elm file's own module instead would make Vite do a full
++          // page reload, since its only importers are CSS files.)
++          name: 'elm-land-css-hmr',
 +          handleHotUpdate(ctx) {
 +            if (ctx.file.endsWith('.elm')) {
-+              // Touch styles.css to trigger PostCSS/Tailwind rebuild
-+              let stylesPath = join(process.cwd(), 'src', 'styles.css')
-+              let now = new Date()
-+              try { fs.utimesSync(stylesPath, now, now) } catch (_) {}
++              let cssImporters =
++                [...(ctx.server.moduleGraph.getModulesByFile(ctx.file) ?? [])]
++                  .flatMap(mod => [...mod.importers])
++                  .filter(importer => /\.(css|pcss|postcss)(\?|$)/.test(importer.url))
++              return [...new Set([...ctx.modules, ...cssImporters])]
 +            }
 +          }
 +        },
-         ElmVitePlugin({
-           mode: debug ? 'debug' : 'standard',
-           isBodyPatchEnabled: false
+         ElmLandIndexHtml.plugin()
+       ],
+       logLevel: 'silent',
+diff --git a/node_modules/elm-land/src/files.js b/node_modules/elm-land/src/files.js
+index 4438da3..09d4ac1 100644
+--- a/node_modules/elm-land/src/files.js
++++ b/node_modules/elm-land/src/files.js
+@@ -110,9 +110,17 @@ let createFile = async ({ name, content }) => {
+   let containingFolder = folderPieces.join('/')
+ 
+   await createFolder({ name: containingFolder })
++
++  // Skip unchanged files, so file watchers (like Vite's) don't see
++  // spurious changes every time Elm Land regenerates its files
++  let filepath = join(process.cwd(), ...pieces)
++  try {
++    if (readFileSync(filepath, { encoding: 'utf-8' }) === content) return
++  } catch (_) { }
++
+   await new Promise((resolve, reject) => {
+     writeFile(
+-      join(process.cwd(), ...pieces),
++      filepath,
+       content, { encoding: 'utf-8' },
+       (err) => {
+         if (err) {
